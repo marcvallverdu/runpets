@@ -1,59 +1,70 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StatusBar } from 'react-native';
+import { initDb } from '@/lib/storage/db';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/components/useColorScheme';
+export { ErrorBoundary } from 'expo-router';
 
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+const ONBOARDING_KEY = '@runpets_onboarding_complete';
+
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    ...FontAwesome.font,
-  });
-
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
+  const [isReady, setIsReady] = useState(false);
+  const [hasOnboarded, setHasOnboarded] = useState(false);
+  const router = useRouter();
+  const segments = useSegments();
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    async function prepare() {
+      try {
+        initDb();
+        const value = await AsyncStorage.getItem(ONBOARDING_KEY);
+        setHasOnboarded(value === 'true');
+      } catch (e) {
+        console.error('Init error:', e);
+      } finally {
+        setIsReady(true);
+        SplashScreen.hideAsync();
+      }
     }
-  }, [loaded]);
+    prepare();
+  }, []);
 
-  if (!loaded) {
-    return null;
-  }
+  useEffect(() => {
+    if (!isReady) return;
 
-  return <RootLayoutNav />;
-}
+    const inOnboarding = segments[0] === 'onboarding';
 
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+    if (!hasOnboarded && !inOnboarding) {
+      router.replace('/onboarding/welcome');
+    } else if (hasOnboarded && inOnboarding) {
+      router.replace('/(tabs)');
+    }
+  }, [isReady, hasOnboarded, segments]);
+
+  if (!isReady) return null;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+    <>
+      <StatusBar barStyle="light-content" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen
+          name="celebration"
+          options={{
+            presentation: 'transparentModal',
+            headerShown: false,
+            animation: 'fade',
+          }}
+        />
       </Stack>
-    </ThemeProvider>
+    </>
   );
 }
+
+export { ONBOARDING_KEY };

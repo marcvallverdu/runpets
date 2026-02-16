@@ -1,0 +1,12 @@
+{
+  "id": "endurance-wolf",
+  "name": "Endurance Wolf",
+  "archetype": "endurance",
+  "description": "A loyal companion that thrives on long distances.",
+  "stages": [
+    { "level": 1, "name": "Pup", "imagePrefix": "wolf-pup", "requirements": null },
+    { "level": 2, "name": "Runner", "imagePrefix": "wolf-runner", "requirements": { "totalKm": 50 } },
+    { "level": 3, "name": "Alpha", "imagePrefix": "wolf-alpha", "requirements": { "totalKm": 200 } }
+  ],
+  "statWeights": { "pace": 0.2, "distance": 0.6, "consistency": 0.2 }
+}

@@ -1,0 +1,18 @@
+export const colors = {
+  background: '#0a0e27',
+  backgroundLight: '#1a1f3a',
+  card: '#1e2442',
+  cardBorder: '#2a3158',
+  accent: '#4f8fff',
+  accentLight: '#7aabff',
+  secondary: '#c0c7d6',
+  text: '#ffffff',
+  textSecondary: '#8892b0',
+  textMuted: '#5a6380',
+  streak: '#ff6b35',
+  streakGlow: '#ff8f5e',
+  success: '#4ade80',
+  xpBar: '#4f8fff',
+  xpBarBg: '#1a2744',
+  danger: '#ef4444',
+};
