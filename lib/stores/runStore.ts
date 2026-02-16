@@ -13,7 +13,7 @@ type RunState = {
   longestStreak: number;
 
   loadRuns: () => void;
-  sync: (useMock?: boolean) => Promise<void>;
+  sync: (useMock?: boolean | 'auto') => Promise<void>;
 };
 
 function isToday(dateStr: string): boolean {
@@ -62,7 +62,7 @@ export const useRunStore = create<RunState>((set) => ({
     });
   },
 
-  sync: async (useMock = false) => {
+  sync: async (useMock: boolean | 'auto' = 'auto') => {
     set({ isSyncing: true });
     try {
       const result = await syncRuns(useMock);

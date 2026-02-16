@@ -45,7 +45,7 @@ export default function HistoryScreen() {
   }, []);
 
   const handleRefresh = useCallback(async () => {
-    await sync(true);
+    await sync('auto');
     loadRuns();
   }, [sync, loadRuns]);
 

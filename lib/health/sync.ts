@@ -128,7 +128,7 @@ async function fetchHealthKitRuns(): Promise<RunInsert[]> {
   }
 }
 
-export async function syncRuns(useMockData = false): Promise<{
+export async function syncRuns(useMockData: boolean | 'auto' = 'auto'): Promise<{
   newRuns: number;
   totalDistance: number;
   evolved: boolean;
@@ -136,8 +136,9 @@ export async function syncRuns(useMockData = false): Promise<{
 }> {
   let newRunsToInsert: RunInsert[];
 
-  if (useMockData || !healthKitAvailable) {
-    // Check if we already have mock data
+  const shouldUseMock = useMockData === true || (useMockData === 'auto' && !healthKitAvailable);
+
+  if (shouldUseMock) {
     const existing = getRuns();
     if (existing.length > 0) {
       newRunsToInsert = [];
@@ -173,6 +174,13 @@ export async function syncRuns(useMockData = false): Promise<{
   const totalKm = totalDistance / 1000;
   const newLevel = getEvolutionStage(totalKm);
   const evolved = newLevel > (profile.total_distance_meters / 1000 >= 200 ? 3 : profile.total_distance_meters / 1000 >= 50 ? 2 : 1);
+
+  // Update pet XP
+  const { getActivePet, updatePet } = require('../storage/db');
+  const activePet = getActivePet();
+  if (activePet) {
+    updatePet(activePet.id, { xp: totalXp, level: newLevel });
+  }
 
   // Update profile
   updateProfile({

@@ -35,8 +35,13 @@ export const usePetStore = create<PetState>((set, get) => ({
   totalKm: 0,
 
   loadPet: () => {
-    const pet = getActivePet();
-    if (!pet) return;
+    let pet = getActivePet();
+    if (!pet) {
+      // Recovery: onboarding done but pet missing — recreate
+      insertPet('Stompi');
+      pet = getActivePet();
+      if (!pet) return;
+    }
 
     const profile = getProfile();
     const totalKm = profile.total_distance_meters / 1000;

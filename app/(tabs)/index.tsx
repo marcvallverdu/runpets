@@ -21,21 +21,21 @@ export default function HomeScreen() {
   } = usePetStore();
 
   const {
-    todayRuns, weeklyDistance, totalDistance, currentStreak, isSyncing, loadRuns, sync,
+    runs, todayRuns, weeklyDistance, totalDistance, currentStreak, isSyncing, loadRuns, sync,
   } = useRunStore();
 
   useEffect(() => {
     loadPet();
     loadRuns();
     // Auto-sync on mount (use mock data for dev)
-    sync(true).then(() => {
+    sync('auto').then(() => {
       loadPet();
       loadRuns();
     });
   }, []);
 
   const handleRefresh = useCallback(async () => {
-    await sync(true);
+    await sync('auto');
     loadPet();
     loadRuns();
     const evolved = checkEvolution();
@@ -157,7 +157,7 @@ export default function HomeScreen() {
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{useRunStore.getState().runs.length}</Text>
+              <Text style={styles.statValue}>{runs.length}</Text>
               <Text style={styles.statLabel}>Runs</Text>
             </View>
           </View>
