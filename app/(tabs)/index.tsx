@@ -78,7 +78,7 @@ export default function HomeScreen() {
         </View>
 
         {/* Pet */}
-        <Pressable style={styles.petContainer}>
+        <Pressable style={styles.petContainer} onPress={() => router.push(`/pet/${pet?.id || 'default'}`)}>
           <View style={styles.petGlow} />
           <Image source={petImage} style={styles.petImage} contentFit="contain" />
         </Pressable>
